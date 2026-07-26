@@ -1,5 +1,9 @@
 import { v2 as cloudinary } from "cloudinary"
 import fs from "fs"
+import dotenv from "dotenv"
+dotenv.config()
+
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -9,19 +13,20 @@ cloudinary.config({
 
 const uploadOnCloudinary = async (localFilePath) => {
     try {
-        if (!localFilePath) { console.log("file  not found") }
+        if (!localFilePath) return null;
 
         //upload the file on cloudinary 
 
-        else {
+        
             const response = await cloudinary.uploader.upload(localFilePath, {
                 resource_type: "auto"
             })
-        }
+        
 
-        //file hgas been succesfully uploaded on cloudinary 
+        //file has been succesfully uploaded on cloudinary 
 
-        console.log("file uploaded successsfully", response.url);
+        //console.log("file uploaded successsfully", response.url);
+        fs.unlinkSync(localFilePath)
         return response;
     }
     catch (error) {
@@ -29,5 +34,6 @@ const uploadOnCloudinary = async (localFilePath) => {
         return null;
     }
 }
+
 
 export { uploadOnCloudinary }

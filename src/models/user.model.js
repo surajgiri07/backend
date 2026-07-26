@@ -27,6 +27,10 @@ const userSchema = new Schema({
         type: String,//cloudnary URL
         required: true,
     },
+    coverImage:{
+    type: String,
+ 
+    },
     watchHistory: [
         {
             type: Schema.Types.ObjectId,
@@ -43,14 +47,12 @@ const userSchema = new Schema({
     }
 
 }, { timestamps: true })
-userSchema.pre("save", async function (next) {
-    if (this.isModified("password")) {
-        this.password = await bcrypt.hash(this.password, 10)
-        next()
-    } else {
-        next()
-    }
-})
+
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;   // skip hashing if password unchanged
+  this.password = await bcrypt.hash(this.password, 10);  // hash it, assign back
+  // function ends here → Promise resolves → Mongoose proceeds to save
+});
 
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password)

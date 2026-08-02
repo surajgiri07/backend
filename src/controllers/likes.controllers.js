@@ -1,0 +1,97 @@
+import mongoose, { isValidObjectId } from "mongoose"
+import { Like } from "../models/like.model.js"
+import { ApiError } from "../utils/ApiError.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
+import { User } from "../models/user.model.js"
+
+const toggleVideoLike = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if (!videoId) {
+        throw new ApiError(400, "videoId is missing")
+    }
+
+    // const video = await Video.findById(videoId)
+
+    // if (!video) {
+    //     throw new ApiError(404, "video not found")
+    // }
+const likedVideo= await Like.findOne({
+    
+        video:videoId,
+        likedBy:User.req._id
+    
+})
+
+if(likedVideo){
+    await likedVideo.deleteOne()
+}else{
+    await Like.create({
+       video:videoId,
+       likedBy:req.user._id
+    })
+}
+ return res.status(200).
+ json(new ApiResponse(200, likedVideo,"video liked toggle"))
+})
+
+const toggleCommentLike = asyncHandler(async (req, res) => {
+    const { commentId } = req.params
+if(!commentId){
+    throw new ApiError(400,"comment Id is missing")
+}
+
+const likedComment=await Like.findOne({
+    comment:commentId,
+    likedBy:req.user._id
+})
+
+if (likedComment) {
+   await likedComment.deleteOne()
+}else{
+    await Like.create({
+        comment:commentId,
+        likedBy:req.user._id
+    })
+}
+
+return res.status(200).
+json(new ApiResponse(200,likedComment,"liked comment toggled successfully"))
+})
+
+const toggleTweetLike = asyncHandler(async (req, res) => {
+    const { tweetId } = req.params
+    if(!tweetId){
+    throw new ApiError(400,"tweet Id is missing")
+}
+
+const likedTweet=await Like.findOne({
+    tweet:tweetId,
+    likedBy:req.user._id
+})
+
+if (likedTweet) {
+   await likedTweet.deleteOne()
+}else{
+    await Like.create({
+        tweet:tweetId,
+        likedBy:req.user._id
+    })
+}
+
+return res.status(200).
+json(new ApiResponse(200,likedTweet,"liked tweet toggled successfully"))
+    
+})
+
+const getLikedVideos = asyncHandler(async (req, res) => {
+    //TODO: get all liked videos
+})
+
+export {
+    toggleCommentLike,
+    toggleTweetLike,
+    toggleVideoLike,
+    getLikedVideos
+}
